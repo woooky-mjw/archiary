@@ -619,7 +619,7 @@ odsReader();
 
     // Pokud nemá žádné NFT
     if (nftCount == 0) {
-      nftListElement.innerHTML = "<p>No NFTs found.</p>";
+      nftListElement.innerHTML = "<p>No records found.</p>";
       return;
     }
 
@@ -665,7 +665,7 @@ odsReader();
     nftListElement.innerHTML = tableHtml;
 
   } catch (err) {
-    document.getElementById("nftList").textContent = "❌ Failed to load NFTs.";
+    document.getElementById("nftList").textContent = "❌ Failed to load records.";
     console.error(err);
   }
 }

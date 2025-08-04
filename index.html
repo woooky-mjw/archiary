@@ -624,7 +624,7 @@ let provider, signer, userAddress, contract;
     }
 
     let helpLoaded = false;
-
+//---------------------------------------------------------------------------------
     function toggleHelp() {
       const box = document.getElementById("helpBox");
 
@@ -632,7 +632,7 @@ let provider, signer, userAddress, contract;
         box.style.display = "block";
 
         if (!helpLoaded) {
-          fetch("kr_help.html")
+          fetch("ar_help.html")
             .then((response) => response.text())
             .then((html) => {
               const parser = new DOMParser();
