@@ -676,7 +676,11 @@ odsReader();
         if(metadata.name=="thanks")  {findedImage=dataFolder+"thanks.png";findedExternalLink=" ";
           findedDescription = "Amount is too low. It is donation. Thanks. Everything will be used for charity";}
       }
-      
+      console.error("findedExternalLink=",findedExternalLink);
+      if (!/^https?:\/\//i.test(findedExternalLink)) {
+          findedExternalLink = "https://" + findedExternalLink;
+          console.error("findedExternalLink=",findedExternalLink);
+        }
       
       //let link = globalPrefix+metadata.external_link;metadata.external_link="";
       //if (!globalPicture || globalPicture.trim() === "") {  globalPicture = metadata.image; }
@@ -689,18 +693,18 @@ odsReader();
               <img src="${findedImage}" alt="" 
                    style="width:60px; height:auto; border-radius:8px;" />
               <div style="display:flex; flex-direction:column; justify-content:flex-start;">
-                <strong style="color:blue; font-size:1.2em; white-space:normal; overflow-wrap:break-word; word-break:break-word;">
+                <strong style="color:white; font-size:1.2em; white-space:normal; overflow-wrap:break-word; word-break:break-word;">
                   ${findedName}
                 </strong>
                 <div style="color:gray; font-size:1em; white-space:normal; overflow-wrap:break-word; word-break:break-word;">
                   ${findedDescription || ""}
-                </div>
-                <div style="color:gray; font-size:0.8em; white-space:normal; overflow-wrap:break-word; word-break:break-word;display: none;">
-                  ${metadata.external_link || ""}
+                </div></a>
+                <div style="color:gray; font-size:0.8em; white-space:normal; overflow-wrap:break-word; word-break:break-word;">
+                  ${findedExternalLink || ""}
                 </div>
               </div>
             </div>
-            </a>
+            
           </td>
         </tr>
       `;
@@ -782,7 +786,7 @@ function toggleHelp() {
 //-------------------------------------------------------
 //-------------------------------------------------------    
     async function sendGet() {
-    const from = userAddress +":"+ document.getElementById("fromInput").value.trim();
+    const from = userAddress ;//+":"+ document.getElementById("fromInput").value.trim();
     //const message = document.getElementById("messageInput").value.trim();
     //const add = "";//const add = document.getElementById("addInput").value.trim();
     let ethValue = document.getElementById("amount").value.trim();
