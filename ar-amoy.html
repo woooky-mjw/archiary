@@ -6,7 +6,7 @@
   <!--<script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>-->
   <!--<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>-->
   <script src="ethers.umd.min.js"></script>
-  
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
   <style>
   body {
@@ -56,10 +56,7 @@
 .styled-button:hover {
   background-color: #00416b; /* tmavší varianta modré */
 }
-.styled-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-} 
+ 
 
   .logo {
     max-width: 100px;
@@ -89,7 +86,7 @@
   }
 
   #balance {
-    font-size: 3.3em;
+    font-size: 1.50em;
     color: #48cae4;
     word-break: break-word;
     overflow-wrap: break-word;
@@ -273,45 +270,71 @@ body.light-mode .eth-label {
 </head>
 <body>
 
-
   <div class="header-container">
       <img src="logo_archiary.png" class="logo" alt="Archiary" />
-    <h1>Get a record from the Archiary  </h1>
+    <h1>Get a record from the Archiary </h1>
     <div class="balance-wrapper">
-      <div id="mainName" class="highlight"> </div>
+      <div id="balance" class="highlight"></div>
       <div class="eth-label"></div>
-    </div>
+    </div> 
   </div>
 
-  <h5 style="margin: 0 0 0.2em 0; color: yellow;">Select Blockchain Net ...</h5>
-    <div style="display: flex; gap: 10px;top: 0;">
-      <button onclick="location.href='ar-amoy.html';">       🌊Amoy </button>
-   <!--   <button onclick="location.href='kr-amoy2.html';">      🌊Amoy2 </button> -->
-      <button onclick="location.href='ar-local0.html';" >    🖥️Hardhat  </button>
-      <button onclick="location.href='ar-ethereum.html';">   🟣Ethereum   </button>
-      <button onclick="location.href='ar-bitcoin.html';" >    🪙Bitcoin  </button>
-     </div>
-   <!-- Mezera po tlačítkách -->
-    <div style="margin-top: 30px;"></div>
+  <div style="text-align: center; margin-top: -1.5em;">
+  <h5 style="margin: 0 0 0.2em 0;">Ethereum site Contract Archiary Address:</h5>
+  <div style="display: inline-flex; align-items: center; gap: 0.2em; font-size: 1.3em; margin: 0;">
+    <span id="contractAddress">Loading...</span>
+    <button onclick="copyContractAddress()" 
+            title="Copy to clipboard"
+            style="
+              padding: 0;
+              margin-left: -2.1em;
+              font-size: 0.9em;
+              line-height: 1;
+              cursor: pointer;
+              border: none;
+              background: none;
+              vertical-align: middle;
+              position: relative;
+              top: -0.6em;
+            ">
+      📋
+    </button>
+  </div>
+</div>
 
+
+
+
+  <h2>🔍 Select record from the list below </h2>
+  <div style="display: flex; gap: 1em;"> 
+    <label for="record" style="margin-top: 0.9em; margin-right: -0.5em;">  📖 Record:   </label>
+    <input type="number" id="record" readonly placeholder="record" step="1" min="0"
+      style="flex: 1; color: darkblue; background-color: #778899; border: 1px solid #ccc;
+           padding: 0.2em; border-radius: 4px; font-size: 1.3em; font-weight: bold;" >
+    <label for="record" style="margin-top: 0.9em; margin-right: -0.5em;">🟣 Eth:     </label>
+    <input type="number" id="amount" readonly placeholder="amount in ETH"  step="0.00001" min="0.00001"
+      style="flex: 1; color: darkblue; background-color: #778899; border: 1px solid #ccc;
+           padding: 0.2em; border-radius: 4px; font-size: 1.3em; font-weight: bold;width-max:50px">       
+  </div>
+  <div id="statusZaznamu" style="display: flex;word-wrap: break-word; overflow-wrap: break-word;font-size: 1.50em;
+    white-space: normal;font-weight: normal; color: white; text-align: left; margin: 1em auto;"></div>
+    
+  <button id="sendGetBtn" style="display:none;"onclick="sendGet()">⏫ Send  a request and get  a record 📥</button>
+  
+  <div id="status2" style="word-wrap: break-word; overflow-wrap: break-word;
+    white-space: normal;font-weight: normal; color: grey; text-align: center; margin: 1em auto;"></div>
   <div style="display: flex; justify-content: flex-start; align-items: center; gap: 1em; width: 90%; margin: 1em auto;">
-        <div id="status" style=" word-wrap: break-word; overflow-wrap: break-word;  white-space: normal;
-                          font-weight:normal; color: lightgrey; ">Welcome!</div>
+        <div id="status" style="
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;font-weight: normal; color: lightgrey;
+    ">Loading ...</div>
     <button id="indexBtn" class="styled-button" onclick="location.href='index.html';" >🏠Home </button>
     <button id="helpBtn" class="styled-button" onclick="toggleHelp()">❓Help</button>
     <button id="themeToggle" class="styled-button">🌞 / 🌙</button>
-    <button id="reloadBtn" class="styled-button" onclick="reloadBtn()">🔄Reload</button>
+    <button id="reloadBtn" class="styled-button" onclick="reloadBtn()">🔁Reload</button>
   </div>
-  <div style="display: flex; justify-content: flex-start; align-items: center; gap: 1em; width: 90%; margin: 1em auto;
-              word-wrap: break-word;overflow-wrap: break-word; white-space: normal; ">
-    <div id="status" style="font-weight: normal; color: lightgrey;">Select a web ...</div>
-    <button id="webBtn1" class="styled-button" onclick="location.href='https://woooky-mjw.github.io/archiary/index.html';" >
-        🌐 woooky-mjw.github.io/archiary </button>
-    <button id="webBtn2" class="styled-button" onclick="location.href='https://archiary.netlify.app/index.html';" >
-        🌐 archiary.netlify.app </button>
-    <button id="webBtn3" class="styled-button" onclick="location.href='https://bafybeiblspvmm366dq3lwq33uxfv6pbshdurqc7qwzwqxjn7gsaclv564y.ipfs.w3s.link/index.html';" disabled >
-        🌐 archiary.web3.storage </button>
-  </div>
+  
   <hr style="border: none; height: 2px; background-color: grey;">
   
   <div id="helpBox">Loading help...</div>
@@ -355,13 +378,25 @@ body.light-mode .eth-label {
         class="styled-button" style="margin: 0 0;">💸 Get Win & Jackpot in ETH</button>
     </div>
     <div style="display: flex; justify-content: flex-start; align-items: center; gap: 2px; 
+          margin: 0em 0em 0em 3em;">
+      <label for="clueCount" style="margin-right: 0.5em;">Start:</label>    
+      <input type="number" id="clueStart" placeholder="clueStart (0-x)" min="0" value="0"
+             style="width: 8em; margin: 0em 1em 0em 0em;" />
+      <label for="clueCount" style="margin-right: 0.5em;">Count:</label>       
+      <input type="number" id="clueCount" placeholder="clueCount (1-100)" min="1" value="100"
+             style="width: 8em; margin: 0em 1em 0em 0em;" />       
+      <button onclick="getCluesPage()"
+        class="styled-button" style="margin: 0 0;">💼 Get Clue Page</button>
+      
+    </div>
+    <div style="display: flex; justify-content: flex-start; align-items: center; gap: 2px; 
             margin: 1em 0em 1em 5em;">
       <button onclick="getAllPlayers()"
         class="styled-button" style="margin: 0 0;">🧑‍🤝‍🧑 Get All Players</button>
       <button onclick="getAllUsersData()"
         class="styled-button" style="margin: 0 0;">📊 Get All Users Data</button>
       <button onclick="getRebusData()"
-        class="styled-button" style="margin: 0 0;">🧠 Get Rebus Data</button>
+        class="styled-button" style="margin: 0 0;">🧠 Get Config</button>
       <button onclick="getUserDataOfAll()" 
         class="styled-button" style="margin: 0 0;">📋 Get User Data Of All</button>
     </div>
@@ -382,22 +417,13 @@ body.light-mode .eth-label {
   </div>
 
 
-
-
-
-  <h2>🔍 Your NFTs clues</h2>
-  <table>
-  <tr>
-    <td><img src="welcome.png" alt="1" width="100"></td>
-    <td><img src="get.png" alt="2" width="100"></td>
-    <td><img src="message.png" alt="2" width="100"></td>
-    <td><img src="get2.png" alt="3" width="100"></td>
-    <td><img src="thanks.png" alt="4" width="100"></td>
-  </tr>
-</table>
+<h2>🖼️ Your acquired records</h2>
 <!--  <div id="nftList" class="nft-grid">Loading...</div>  -->
   <div id="nftList" class="nft-grid" style="margin: -1em auto 0 auto; color: grey" >.</div>
   
+<h2>📖 List of available records</h2>
+  <div id="archiaryList"></div>
+
   
 <!---------------message to owner c-->
   <h2>💬 Write, comment...</h2>
@@ -414,7 +440,7 @@ body.light-mode .eth-label {
 
 
   <script>
-    const CONTRACT_ADDRESS="0x5FbDB2315678afecb367f032d93F642f64180aa3";//local0
+    const CONTRACT_ADDRESS="0xa82F1D20cefaE68630bBBd9Eb12Eb06288695D4D";//local0
      //const CONTRACT_ADDRESS="0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
     //const CONTRACT_ADDRESS = "0x6868fB44016152f069A2D7AAb7EF35B47Eb2580A";//amoy
     //const CONTRACT_ADDRESS = "0x7D70387758dA586D49cc5F290f1Db2C0aD4595b1";//amoy2
@@ -443,11 +469,21 @@ body.light-mode .eth-label {
 ];
 */
 let ABI;
-let provider, signer, userAddress, contract;
+let provider, signer, userAddress, contract; 
+let globalName;
+let globalRows=0; 
+let globalPrefix;
+let globalPicture;
+let userAdress=false;
+let odsFile;
+const dataFolder = "data/";
 
   async function loadABI() {
     try {
-      const response = await fetch('KryptoRebus.json');
+      const version = Date.now();    
+      const fileJson = `Archiary.json?v=${version}`; 
+      const response = await fetch(fileJson, { cache: "no-store" });
+      //const response = await fetch('Archiary.json');
       if (!response.ok) throw new Error('Failed to fetch artifact');
       const artifact = await response.json();
       ABI = artifact.abi;
@@ -456,13 +492,14 @@ let provider, signer, userAddress, contract;
     }
   }
  //   let provider, signer, userAddress, contract;
+odsReader();
 
     async function init() {
   try {
     if (!window.ethereum) {
-      //alert("MetaMask required.");
+      alert("MetaMask required.");
       console.log("MetaMask not found");
-      //document.getElementById("status2").textContent = "❌ MetaMask not found.";
+      document.getElementById("status2").textContent = "❌ MetaMask not found.";
       return;
     }
 
@@ -491,7 +528,7 @@ let provider, signer, userAddress, contract;
     contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
     const balance = await provider.getBalance(CONTRACT_ADDRESS);
-    document.getElementById("balance").textContent = ethers.utils.formatEther(balance);
+    document.getElementById("balance").textContent = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
     document.getElementById("contractAddress").textContent = CONTRACT_ADDRESS;
     //document.getElementById("fromInput").value = userAddress;
 
@@ -501,6 +538,7 @@ let provider, signer, userAddress, contract;
     if (userAddress.toLowerCase() === ownerAddr.toLowerCase()) {
       document.getElementById("ownerControls").style.display = "block";
       console.log("User is owner, showing owner controls");
+      userAdress=true;
     }
 
     await loadNFTs();
@@ -525,9 +563,13 @@ let provider, signer, userAddress, contract;
     document.getElementById("status").innerText = `Updated  🕒 ${now}`;
   }
   function reloadBtn() {
-    location.reload();showLastUpdated()
+    document.getElementById("amount").value = document.getElementById("amount").defaultValue;
+    document.getElementById("record").value = document.getElementById("record").defaultValue;
+    location.reload();showLastUpdated();odsReader();
   }
   async function refreshFrontend() {
+    document.getElementById("amount").value = document.getElementById("amount").defaultValue;
+    document.getElementById("record").value = document.getElementById("record").defaultValue;
     document.getElementById("fromInput").value = document.getElementById("fromInput").dataset.default;
     document.getElementById("messageInput").value = document.getElementById("messageInput").dataset.default;
     document.getElementById("addInput").value = document.getElementById("addInput").dataset.default;
@@ -536,7 +578,7 @@ let provider, signer, userAddress, contract;
     try {
         const newBalance = await provider.getBalance(CONTRACT_ADDRESS);
         const balanceEl = document.getElementById("balance");
-        balanceEl.textContent = ethers.utils.formatEther(newBalance) ;
+        balanceEl.textContent = parseFloat(ethers.utils.formatEther(newbalance)).toFixed(4);
         balanceEl.classList.add("flash");
         setTimeout(() => balanceEl.classList.remove("flash"), 	120000); // 0.5 s
         
@@ -580,55 +622,105 @@ let provider, signer, userAddress, contract;
 
         const newBalance = await provider.getBalance(CONTRACT_ADDRESS);
         const balanceEl = document.getElementById("balance");
-        balanceEl.textContent = ethers.utils.formatEther(newBalance);
+        balanceEl.textContent = parseFloat(ethers.utils.formatEther(newBalance)).toFixed(4);
         balanceEl.classList.add("flash");
         setTimeout(() => balanceEl.classList.remove("flash"), 	120000);
         loadNFTs();
+        document.getElementById("senGet()").invisible; 
       } catch (err) {
         document.getElementById("status2").textContent = "❌ Error: " + err.message;
       }
     }
-
+//----------------------------------------------------------------------------------------------------
     async function loadNFTs() {
-      try {
-        const nftCount = await contract.balanceOf(userAddress);
-        const nftList = document.getElementById("nftList");
-        nftList.innerHTML = "";
+  try {
+    const nftCount = await contract.balanceOf(userAddress);
+    const nftListElement = document.getElementById("nftList");
+    const ownerAddr = await contract.owner();
+    nftListElement.innerHTML = "";
 
-        //for (let i = 0; i < nftCount; i++) {
-        for (let i = nftCount - 1; i >= 0; i--) {
-          const tokenId = await contract.tokenOfOwnerByIndex(userAddress, i);
-          const tokenUri = await contract.tokenURI(tokenId);
-          const response = await fetch(tokenUri);
-          const metadata = await response.json();
-
-          const card = document.createElement("div");
-          card.className = "nft-card";
-          card.innerHTML = `<img src="${metadata.image}" alt=" " />
-                            <div><strong style="color: blue;font-size: 1.2em;white-space: normal; 
-                                  overflow-wrap: break-word; word-break: break-word;"
-                                  >${metadata.name}</strong></div>
-                            <div class="nft-description" style="color: font-size: 1.0em;gray;white-space: normal; 
-                                  overflow-wrap: break-word;word-break: break-word;"
-                                  >${metadata.description || "No description available."}</div>
-                            <div class="nft-external_link" style="color: gray;font-size: 0.8em;
-                                  white-space: normal;overflow-wrap: break-word;word-break: break-word;"
-                                  >${metadata.external_link || ""}</div>
-                            `;
-          nftList.appendChild(card);
-        }
-
-        if (nftCount == 0) {
-          nftList.innerHTML = "<p>No NFTs found.</p>";
-        }
-      } catch (err) {
-        document.getElementById("nftList").textContent = "❌ Failed to load NFTs.";
-      }
+    // Pokud nemá žádné NFT
+    if (nftCount == 0) { nftListElement.innerHTML = "<p>No records found.</p>";
+      return;
     }
 
-    let helpLoaded = false;
-//---------------------------------------------------------------------------------
-    function toggleHelp() {
+    // Začneme HTML tabulkou o jednom sloupci
+    let tableHtml = `<table style="width:100%; border-collapse:collapse;">`;
+
+    // Načteme NFT pozpátku (od nejnovějšího)
+    for (let i = nftCount - 1; i >= 0; i--) {
+      const tokenId = await contract.tokenOfOwnerByIndex(userAddress, i);
+      const tokenUri = await contract.tokenURI(tokenId);
+      const response = await fetch(tokenUri);
+      const metadata = await response.json();
+      //Data z archiary.ods
+      const row = await getFirstRowBySecondValue(odsFile, metadata.name);
+      let findedExternalLink = metadata.external_link || "";
+      let findedImage = metadata.image || "";
+      let findedName = metadata.name || "";
+      let findedDescription = metadata.description || "";
+      let findedExternalLinkText = metadata.external_link || "";
+      
+      if (row) {
+        // Použij hodnoty z ODS, pokud existují
+        findedExternalLink = (row[3] ?? "") + findedExternalLink;
+        findedImage = dataFolder+row[0] || findedImage;
+        findedName = (row[1]+" #"+row[2]) || findedName;
+        if (!findedImage || findedImage.trim() === "") { findedImage=dataFolder+"get.png"; }
+        
+      } else {
+        console.warn("⚠ Řádek nenalezen pro", metadata.name);
+        if(metadata.name=="welcome") {findedImage=dataFolder+"welcome.png";findedExternalLink=" ";
+          findedDescription = "Welcome Archiary !";}
+        if(metadata.name=="message") {findedImage=dataFolder+"message.png";findedExternalLink=" ";}
+        if(metadata.name=="thanks")  {findedImage=dataFolder+"thanks.png";findedExternalLink=" ";
+          findedDescription = "Amount is too low. It is donation. Thanks. Everything will be used for charity";}
+      }
+      
+      
+      //let link = globalPrefix+metadata.external_link;metadata.external_link="";
+      //if (!globalPicture || globalPicture.trim() === "") {  globalPicture = metadata.image; }
+      
+      tableHtml += `
+        <tr>
+          <td style="padding:8px; border:1px solid #ccc;">
+          <a href="${findedExternalLink }" target="_blank" rel="noopener noreferrer" style="color:gray; text-decoration:none;">
+            <div style="display:flex; align-items:flex-start; gap:10px;">
+              <img src="${findedImage}" alt="" 
+                   style="width:60px; height:auto; border-radius:8px;" />
+              <div style="display:flex; flex-direction:column; justify-content:flex-start;">
+                <strong style="color:blue; font-size:1.2em; white-space:normal; overflow-wrap:break-word; word-break:break-word;">
+                  ${findedName}
+                </strong>
+                <div style="color:gray; font-size:1em; white-space:normal; overflow-wrap:break-word; word-break:break-word;">
+                  ${findedDescription || ""}
+                </div>
+                <div style="color:gray; font-size:0.8em; white-space:normal; overflow-wrap:break-word; word-break:break-word;display: none;">
+                  ${metadata.external_link || ""}
+                </div>
+              </div>
+            </div>
+            </a>
+          </td>
+        </tr>
+      `;
+     // if (userAddress.toLowerCase() === ownerAddr.toLowerCase()) {}else{break;}
+    }
+
+    tableHtml += `</table>`;
+    nftListElement.innerHTML = tableHtml;
+    globalPrefix="";globalPicture="";
+  } catch (err) {
+    console.error("❌ Failed to load records:", err);
+    document.getElementById("nftList").textContent = "❌ Failed to load records.";globalPrefix="";globalPicture="";
+    console.error(err);
+  }
+}
+
+
+let helpLoaded = false;
+
+function toggleHelp() {
       const box = document.getElementById("helpBox");
 
       if (box.style.display === "none" || box.style.display === "") {
@@ -656,7 +748,7 @@ let provider, signer, userAddress, contract;
     async function sendMessageToOwner() {
     const from = userAddress +":"+ document.getElementById("fromInput").value.trim();
     const message = document.getElementById("messageInput").value.trim();
-    const add = "";//const add = document.getElementById("addInput").value.trim();
+    const add = ethers.utils.formatBytes32String("");;//const add = document.getElementById("addInput").value.trim();
     const ethValue = document.getElementById("ethForMessage").value.trim();
 
     if (/*!from || !message ||*/ !ethValue || isNaN(ethValue) || ethValue <= 0) {
@@ -675,13 +767,252 @@ let provider, signer, userAddress, contract;
       await tx.wait();
       document.getElementById("sendMessageToOwnerStatus").textContent = 
       "✅ Message sent! NFT should be minted.";          
-      
+      loadNFTs();
+      window.scrollTo({  top: 0,  behavior: 'smooth'});
       refreshFrontend();
+      const newBalance = await provider.getBalance(CONTRACT_ADDRESS);
+        const balanceEl = document.getElementById("balance");
+        balanceEl.textContent = parseFloat(ethers.utils.formatEther(newBalance)).toFixed(4);
+        balanceEl.classList.add("flash");
+        setTimeout(() => balanceEl.classList.remove("flash"), 	120000);
     } catch (err) {
       document.getElementById("sendMessageToOwnerStatus").textContent = "❌ Error: " + err.message;
     }
   }
+//-------------------------------------------------------
+//-------------------------------------------------------    
+    async function sendGet() {
+    const from = userAddress +":"+ document.getElementById("fromInput").value.trim();
+    //const message = document.getElementById("messageInput").value.trim();
+    //const add = "";//const add = document.getElementById("addInput").value.trim();
+    let ethValue = document.getElementById("amount").value.trim();
+    const record = Number(document.getElementById("record").value.trim());
+    if (globalName === undefined || globalName === "") { 
+          globalName = String(document.getElementById("record").value.trim());}
+    //alert('Získaná hodnota z tabulky: ' + globalRows  );
+    if (record>globalRows || record < 0||/*!from || !message ||*/ !ethValue || isNaN(ethValue) || ethValue <= 0) {
+      document.getElementById("status2").textContent = "❌ Fill and enter valid ETH and record index";
+      return;
+    }
+    const ownerAddr = await contract.owner();
+    console.log("Owner address:", ownerAddr);
+
+    if (userAddress.toLowerCase() === ownerAddr.toLowerCase()) {
+       document.getElementById("amount").value=0;
+       ethValue = document.getElementById("amount").value.trim();
+       
+    }
+    
+    try {
+      const tx = await signer.sendTransaction({
+        to: CONTRACT_ADDRESS,
+        value: ethers.utils.parseEther(ethValue),
+        data: contract.interface.encodeFunctionData("sendGet", [from, globalName, record])
+      });
+
+      document.getElementById("status2").textContent = "⏳ Sending request...";
+      await tx.wait();
+      document.getElementById("status2").textContent = 
+      "✅ Request sent! Record should be minted.";          
+      loadNFTs();
+      refreshFrontend();
+      //document.getElementById('nftList').scrollIntoView({ behavior: 'smooth' });
+      
+      const newBalance = await provider.getBalance(CONTRACT_ADDRESS);
+        const balanceEl = document.getElementById("balance");
+        balanceEl.textContent = parseFloat(ethers.utils.formatEther(newBalance)).toFixed(4);
+        balanceEl.classList.add("flash");
+        setTimeout(() => balanceEl.classList.remove("flash"), 	120000);
+        document.getElementById("statusZaznamu").textContent = "";
+        document.getElementById("sendGetBtn").style.display = "none";
+        document.getElementById("amount").value = document.getElementById("amount").defaultValue;
+        document.getElementById("record").value = document.getElementById("record").defaultValue;
+    } catch (err) {
+      document.getElementById("status2").textContent = "❌ Error: " + err.message;
+    }
+  }
+//-------------------------------------------------------
 //-------------------------------------------------------  
+async function odsReader() {
+    // ⚙️ Konfigurace
+    //const odsFile = 'archiary.ods';        // Soubor ODS ve stejné složce
+    //const odsFile = 'https://archiary.netlify.app/archiary.ods';
+    //const version = Date.now(); // vždy unikátní číslo
+    //const odsFile = `https://archiary.netlify.app/archiary.ods?v=${version}`;
+//----------------------------------------------------------------------------------
+    //načítání souboru archiary.ods alternativně z různých adres
+//    let odsFile;
+    const version = Date.now();
+    const odsFilePrimary = `https://archiary.netlify.app/data/archiary.ods?v=${version}`; 
+//na archiary.netlify.app/ nutno mít v adresáři soubor _headers s obsahem
+//    /archiary.ods
+//  Access-Control-Allow-Origin: *
+
+    const odsFileBackup  = `https://woooky-mjw.github.io/archiary/data/archiary.ods?v=${version}`; // záložní adresa
+    const odsFileLocal   = `${dataFolder}archiary.ods?v=${version}`; // local adresa
+ /*   try {
+        // Zkusíme primární adresu
+        const res = await fetch(odsFilePrimary, { cache: "no-store" });
+        if (!res.ok) throw new Error("Primární soubor nelze načíst");
+        odsFile=odsFilePrimary;
+    } catch (err) {
+        try {
+          const res2 = await fetch(odsFileBackup, { cache: "no-store" });
+          if (!res2.ok) throw new Error("Sekundarní soubor nelze načíst");
+          odsFile=odsFileBackup;
+        } catch (err) {
+            try {
+            const res3 = await fetch(odsFileLocal, { cache: "no-store" });
+            if (!res3.ok) throw new Error("Lokální soubor nelze načíst");
+            odsFile=odsFileLocal;
+          } catch (err) {}
+        }
+    }    
+    odsFile=odsFileLocal;*/
+    try {
+            const res3 = await fetch(odsFileLocal, { cache: "no-store" });
+            if (!res3.ok) throw new Error("Lokální soubor nelze načíst");
+            odsFile=odsFileLocal;
+          } catch (err) {}
+//----------------------------------------------------------------------------------
+    const staticSheetName = 'webList';     // Název listu (pokud neznáš, použij null pro první list)
+    fetch(odsFile + '?v=' + new Date().getTime())
+      .then(response => response.arrayBuffer())
+      .then(arrayBuffer => {
+    
+        const data = new Uint8Array(arrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        // Vyber list
+        let sheetName = staticSheetName;
+        if (!sheetName || !workbook.SheetNames.includes(sheetName)) {
+          sheetName = workbook.SheetNames[0]; // první list, pokud statický není nalezen
+        }
+        const sheet = workbook.Sheets[sheetName];
+        // Získáme data jako pole řádků
+        let rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        if (rows.length > 1) {
+          globalRows = rows.length-2; 
+          const header = rows[0];             // první řádek jako nadpis
+          const dataRows = rows.slice(1);     // zbytek dat
+          rows = [header, ...dataRows.reverse()]; // spojení hlavičky + otočených dat
+        }
+        // Sestavíme HTML tabulku
+        let html = '<table style="border-collapse: collapse; border: 1px solid #ccc;width: 100%;">';
+        rows.forEach((r, rowIndex) => {
+          html += '<tr>';
+          r.forEach((c, colIndex) => {
+            if (colIndex > 2) return;
+            const isBold = false;//(colIndex === 1) || (colIndex === r.length - 1); // 2. a poslední buňka
+            const isRight = false;//(colIndex === r.length - 2) || (colIndex === r.length - 1); // 2. a poslední buňka
+            
+            const baseStyle = 'padding: 0.01em 0.3em;';
+            const boldStyle = isBold ? ' font-weight:bold;' : '';
+            const rightStyle = isRight ? ' text-align:right;' : '';
+            let cellContent = c ?? '';
+            // Pokud je to datový řádek (ne hlavička) a sloupec s názvem obrázku
+            if (rowIndex > 0 && colIndex === 0 && cellContent) {
+            // Např. cesta k obrázkům je ve složce /images/
+            cellContent = `<img src="${dataFolder}${cellContent}" alt="${cellContent}" style="max-height:80px;max-width:80px;">`;
+            }
+            if (rowIndex === 0) {
+              // Hlavička
+              html += `<th style="${baseStyle}${boldStyle}">${cellContent}</th>`;
+            } else {
+              // Data
+              html += `<td style="${baseStyle}${boldStyle}${rightStyle}">${cellContent}</td>`;
+            }
+          });
+          // Tlačítko jen na datových řádcích
+          //const val0 = encodeURIComponent(String(r[2] ?? ''));
+          //const val1 = encodeURIComponent(String(r[3] ?? ''));
+          if (rowIndex > 0) {
+          // Přidáme log pro ladění
+    
+            //html += `<td><button onclick="get('Řádek ${rowIndex}')">get</button></td>`;
+            html += `<td>
+  <button onclick='get(${JSON.stringify(r[0])},${JSON.stringify(r[1])},${JSON.stringify(r[2])},${JSON.stringify(r[3])},${JSON.stringify(r[4])},${JSON.stringify(r[5])},${JSON.stringify(r[6])})'  style="
+    padding:2px;
+    font-size:14px;
+    line-height:1;
+    width:auto;
+    min-width:unset;
+    border:1px solid #ccc;
+    background:#f0f0f0;
+    background: transparent;border: none;
+    cursor:pointer;
+    outline: none;
+  ">
+    🟣
+  </button>
+</td>`;
+          }
+          html += '</tr>';
+        });
+        html += '</table>';
+        document.getElementById('archiaryList').innerHTML = html;
+      })
+      .catch(err => {
+        document.getElementById('archiaryList').textContent = 'Chyba při načítání ODS: ' + err;
+      });
+}
+//-------------------------------------------------------    
+function get(value0,value1,value2,value3,value4,value5,value6) {
+   document.getElementById("status2").textContent = "";
+  //alert('Získaná hodnota z tabulky: ' + value0 +','+value1 );
+  globalName = [/*value0,*/value1,"#"+value2/*,value3,value4,value5,value6*/].join(" ");
+  globalPicture= dataFolder+value0;
+  globalPrefix= value3;
+  window.scrollTo({  top: 0,  behavior: 'smooth'});
+  document.getElementById("sendGetBtn").style.display = "none";
+  document.getElementById("statusZaznamu").textContent = "Waiting...";
+  
+    
+  //document.getElementById("statusZaznamu").textContent = globalName;
+  document.getElementById("amount").value = document.getElementById("amount").defaultValue;
+  //const input = document.getElementById('amount');
+  //input.min = Number(value5); input.step = Number(value5);
+  document.getElementById("record").value = Number(value2);
+  sendGetPrice();//sendGet();
+}
+//----------------------------------------------------------------------
+async function getFirstRowBySecondValue(odsFile, wantedValue) {
+  try {
+    const response = await fetch(odsFile + '?v=' + Date.now());
+    const arrayBuffer = await response.arrayBuffer();
+    const data = new Uint8Array(arrayBuffer);
+    const workbook = XLSX.read(data, { type: 'array' });
+
+    // Vyber list
+    const staticSheetName = 'webList';
+    let sheetName = staticSheetName;
+    if (!sheetName || !workbook.SheetNames.includes(sheetName)) {
+      sheetName = workbook.SheetNames[0]; // fallback na první list
+    }
+    const sheet = workbook.Sheets[sheetName];
+
+    // Převedeme na pole řádků
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+    // Projdeme datové řádky (od druhého řádku, index 1)
+    for (let i = 1; i < rows.length; i++) {
+    
+      const row = rows[i];
+      console.error("Kontrola řádku:", i, row[2], typeof row[2]);
+      console.error("ODS:", (row[2] ?? '').toString().trim(), 
+            "NAME:", (wantedValue ?? '').toString().trim());
+      if (String(row[2]).trim().toLowerCase() === String(wantedValue).trim().toLowerCase()) {
+    return row;
+}
+
+    }
+
+    return null; // nenašel se žádný odpovídající řádek
+  } catch (err) {
+    console.error('Chyba při načítání ODS:', err);
+    return null;
+  }
+}
+//----------------------------------------------------------------------
 async function withdrawAll() {
   try {
     const ownerContract = contract.connect(signer);
@@ -690,7 +1021,7 @@ async function withdrawAll() {
     await tx.wait();
     document.getElementById("ownerOutput").textContent = "✅ Withdraw successful.";
     const updated = await provider.getBalance(CONTRACT_ADDRESS);
-    document.getElementById("balance").textContent = ethers.utils.formatEther(updated);
+    document.getElementById("balance").textContent = parseFloat(ethers.utils.formatEther(updated)).toFixed(4);
   } catch (err) {
     document.getElementById("ownerOutput").textContent = "❌ Withdraw failed: " + err.message;
   }
@@ -703,11 +1034,180 @@ async function withdrawFees() {
     await tx.wait();
     document.getElementById("ownerOutput").textContent = "✅ Withdraw fees successful.";
     const updated = await provider.getBalance(CONTRACT_ADDRESS);
-    document.getElementById("balance").textContent = ethers.utils.formatEther(updated);
+    document.getElementById("balance").textContent = parseFloat(ethers.utils.formatEther(updated)).toFixed(4);
   } catch (err) {
     document.getElementById("ownerOutput").textContent = "❌ Withdraw fees failed: " + err.message;
   }
 }
+//--------------------------------------------------------
+// Funkce pro získání informací o cene zaznamu
+async function sendGetPrice() {
+  const index = document.getElementById("record").value;
+  if (index === "") {
+    document.getElementById("status2").textContent = "❌ Please enter a valid clue index.";
+    return;
+  } 
+  try {
+    const cluePrice = await contract.sendGetPrice(index);
+    //const cluePriceEth =parseFloat(ethers.utils.formatEther(cluePrice)).toFixed(6); 
+    const cluePriceEth =ethers.utils.formatEther(cluePrice); 
+    
+    setTimeout(() => {  
+      //document.getElementById("statusZaznamu").textContent = globalName;
+      document.getElementById("statusZaznamu").innerHTML = `
+    <img src="${globalPicture}" style="height:3.5em; vertical-align:middle; margin-right:0.5em;flex-shrink: 0;">
+    <span style="word-break: break-word; overflow-wrap: break-word;">${globalName}</span>
+`;
+
+      const roundedUp = ceilDecimals(parseFloat(cluePriceEth), 5);  //zaokrouhlit nahoru
+      document.getElementById("amount").value = roundedUp.toFixed(6);
+      const input = document.getElementById('amount');
+      input.min = Number(cluePriceEth); //input.step = Number(cluePriceEth);
+      document.getElementById("sendGetBtn").style.display = "block";
+      
+    }, 3000); // 1000 ms = 1 s
+    
+    
+  } catch (err) {
+    document.getElementById("status2").textContent = "❌ Failed to fetch clue price: " + err.message;
+  }
+  }
+//-------------------------------------------------------  
+//zaokrouhlit nahoru
+function ceilDecimals(value, decimals) {
+  const factor = Math.pow(10, decimals);
+  return Math.ceil(value * factor) / factor;
+} 
+//--------------------------------------------------------------------------------
+// Funkce pro získání clues po strankach
+async function getCluesPage() {
+  const clueStart = Number(document.getElementById("clueStart").value);
+  const clueCount = Number(document.getElementById("clueCount").value);
+
+  if (isNaN(clueStart) || isNaN(clueCount)) {
+    document.getElementById("ownerOutput").textContent =
+      "❌ Please enter a valid clue start and count.";
+    return;
+  }
+
+  try {
+    // 1️⃣ zavoláme kontrakt
+    const clues = await contract.getCluesPage(clueStart, clueCount);
+
+    // 2️⃣ převedeme na čitelné hodnoty
+    const listItems = clues.map(clue => {
+      // 🔹 clue[0] = bytes32
+      let clueCl;
+      try {
+        clueCl = ethers.utils.parseBytes32String(clue[0]);
+      } catch {
+        // fallback na hex, pokud to není platný string
+        clueCl = ethers.utils.hexlify(clue[0]);
+      }
+      clueCl = ethers.utils.parseBytes32String(clue[0]);
+      // 🔹 všechny číselné hodnoty převedeme na string
+      const price  = clue[1].toString();
+      const param0 = clue[2].toString();
+      const param1 = clue[3].toString();
+      const param2 = clue[4].toString();
+      const param3 = clue[5].toString();
+
+      return `<li>${clueCl}, ${price}, ${param0}, ${param1}, ${param2}, ${param3}</li>`;
+    }).join("");
+
+    // 3️⃣ zobrazíme na stránce
+    document.getElementById("ownerOutput").innerHTML = `<ul>${listItems}</ul>`;
+  } catch (err) {
+    document.getElementById("ownerOutput").textContent =
+      "❌ Failed to fetch clue info: " + err.message;
+  }
+}
+/*
+async function getCluesPage() {
+  const clueStart = Number(document.getElementById("clueStart").value);
+  const clueCount = Number(document.getElementById("clueCount").value);
+
+  if (isNaN(clueStart) || isNaN(clueCount)) {
+    document.getElementById("ownerOutput").textContent = 
+      "❌ Please enter a valid clue start and count.";
+    return;
+  }
+
+  try {
+    const clues = await contract.getCluesPage(clueStart, clueCount);
+
+    const listItems = clues.map(clue => {
+      // Bezpečně převedeme bytes32 na string nebo hex
+      let clueCl;
+      try {
+        clueCl = ethers.utils.parseBytes32String(clue[0]);
+      } catch {
+        clueCl = ethers.utils.hexlify(clue[0]); // hex jako fallback
+      }
+clueCl = ethers.utils.parseBytes32String(clue[0]);
+      // Všechno na string
+      const price  = clue[1].toString();
+      const param0 = clue[2].toString();
+      const param1 = clue[3].toString();
+      const param2 = clue[4].toString();
+      const param3 = clue[5].toString();
+
+      return `<li>${clueCl}, ${price}, ${param0}, ${param1}, ${param2}, ${param3}</li>`;
+    }).join("");
+
+    document.getElementById("ownerOutput").innerHTML = `<ul>${listItems}</ul>`;
+  } catch (err) {
+    document.getElementById("ownerOutput").textContent = 
+      "❌ Failed to fetch clue info: " + err.message;
+  }
+}
+
+/*
+async function getCluesPage() {
+  const clueStart = document.getElementById("clueStart").value;
+  const clueCount = document.getElementById("clueCount").value;
+  if (clueStart === "" || clueCount === "") {
+    document.getElementById("ownerOutput").textContent = "❌ Please enter a valid clue start and count.";
+    return;
+  }
+
+  try {
+    const clues = await contract.getCluesPage(clueStart, clueCount);
+    
+
+    const listItems = clues.map(clue => {
+        //const priceEth = ethers.utils.formatEther(clue[0]); // uint64 v wei
+        //const clueCl  = ethers.utils.toUtf8String(clue[0]);       
+        //const clueCl  = ethers.utils.parseBytes32String(clue[0]);
+        //const clueCl  = clue[0].toString();
+        // pokud bytes32 obsahuje text <= 32 znaků:
+      let clueCl;
+      try {
+        clueCl = ethers.utils.parseBytes32String(clue[0]);
+      } catch {
+        // pokud to není validní UTF-8, ukážeme hex
+        clueCl = ethers.utils.hexlify(clue[0]);
+      }
+
+        const price    = clue[1].toString(); // uint64 v wei
+        const param0   = clue[2].toString();                
+        const param1   = clue[3].toString();
+        const param2   = clue[4].toString(); // int64
+        const param3   = clue[5].toString();
+
+        return `<li> ${price}, ${param0}, ${param1}, ${param2}, ${param3} </li>`;
+    }).join("");
+
+    document.getElementById("ownerOutput").innerHTML = `
+      
+      <ul>${listItems}</ul>
+    `;
+    //document.getElementById("ownerOutput").innerHTML = clueInfo;
+  } catch (err) {
+    document.getElementById("ownerOutput").textContent = "❌ Failed to fetch clue info: " + err.message;
+  }
+}*/
+//----------------------------------------------------------------------
 
 //--------------------------------------------------------
 // Funkce pro získání informací o clue
@@ -882,7 +1382,7 @@ async function getAllUsersData() {
         <li>...winCounter : ${winCounter} </li>
         <li>.......winSum : ${winSum}n = ${winSum/1e+18}e : ${(winSum*100/attemptSum).toFixed(2)}%</li>
         <li>feeCounter... : ${feeCounter} </li>
-        <li>feeSumPartial : ${feeSumPartial}n = ${feeSumPartial/1e+18}e </li>
+        <li>feeSumPartial : ${feeSumPartial}n = ${feeSumPartial/1e+18}e : ${(feeSumPartial*100/attemptSum).toFixed(2)}%</li>
         <li>feeSum....... : ${feeSum}n = ${feeSum/1e+18}e : ${(feeSum*100/attemptSum).toFixed(2)}%</li>
       </ul>
     `;
@@ -899,17 +1399,14 @@ async function getRebusData() {
     //const data = await contract.getRebusData();
     //console.log("Rebus data:", data);
     //document.getElementById("ownerOutput").textContent = JSON.stringify(data, null, 2);
-    const [name, attemptMinimum, active, prcJackpotOfBalance, multiplyToWei,imageHttpFolder,frontHttpAdress] = await contract.getRebusData();
+    const [ attemptMinimum, active, multiplyToWei/*,imageHttpFolder*/] = await contract.getRebusData();
     const info = `
       <ul style="list-style-type: none; padding-left: 0; margin-left: 0;">
-        <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name : ${name} </li>
         <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attemptMinimum : ${attemptMinimum}n = ${attemptMinimum/1e+18}e</li>
         <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;active : ${active} </li>
-        <li>prcJackpotOfBalance : ${prcJackpotOfBalance}% </li>
         <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;multiplyToWei : ${multiplyToWei} </li>
-        <li>.......... </li>
-        <li>imageHttpFolder : ${imageHttpFolder}</li>
-        <li>frontHttpAdress : ${frontHttpAdress}</li>
+        
+        
       </ul>
     `;
     document.getElementById("ownerOutput").innerHTML = info;
